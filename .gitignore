@@ -1,0 +1,7 @@
+.venv
+out.*
+test.txt
+log.txt
+inpt.txt
+test1.alg
+ticket.py
