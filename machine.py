@@ -140,7 +140,7 @@ def alu(alur,alul,code):
 # Write Back
 def decode_instruction(instruction:int):
     global STOP
-
+   
     op = instruction[0]
     mode = bin(int(instruction[1],16))[2:]
     while (len(mode) < 4):
@@ -327,6 +327,7 @@ def data_path(signals:dict):
     global ALUL
     global ALUR
     global STOP 
+
     if signals['s_alur'] == 0xB:
        if signals['alur_latch'] == 1:  
             ALUR = operands['imval']
@@ -357,18 +358,21 @@ def data_path(signals:dict):
     
         
 def load_program(code):
-    for i in range(data_ofset):
+    for _ in range(data_ofset):
         memory.append('0')
     for c in code:
         memory.append(c)
-    
-        
 
-if __name__ == "__main__":
-    #control_unit("","60000034",0)
-    #print(decode_instruction("60000034"))
-    code,labels = get_code(sys.argv[1])
-    inpt_file_name = sys.argv[2]
+def main(code_file,inpt_file):
+
+    global INPUT
+    global STOP
+    global IRQ
+    global data_ofset
+
+
+    code,labels = get_code(code_file)
+    inpt_file_name = inpt_file
     with open (inpt_file_name,'r') as inpt:
         for i in inpt.readlines():
             s = i.split()
@@ -376,18 +380,15 @@ if __name__ == "__main__":
               INPUT.append((int(s[0]),s[1]))    
             else:
               INPUT.append((int(s[0])," "))  
-
-
+    
     data_ofset = len(labels)
     load_program(code)
-
-
     
-
     time_cnt = 0
     journal = ""
     prev_out = memory[1]
     output = ""
+    irq = False
     while (STOP == 0):
         time_cnt += 1
         inpt = None
@@ -398,7 +399,7 @@ if __name__ == "__main__":
                 inpt = i[1]
                 memory[0] = ord(i[1])
 
-        state = control_unit(irq)
+        control_unit(irq)
         if inpt:
                 journal += f'INPUT: "{inpt}"\n'
         if memory[1] != -1:
@@ -425,3 +426,12 @@ if __name__ == "__main__":
         res.write(journal)
     with open ("output.txt",'w') as res:
         res.write(output)
+    
+
+
+
+
+        
+
+if __name__ == "__main__":
+    main(sys.argv[1],sys.argv[2])

@@ -6,7 +6,6 @@ int a = 0;
 while (a < 5){
     a = a;
 }
-string inpt = 7'inputed';
 int j = 1;
 int i = 0;
 int n = 5;
@@ -28,17 +27,20 @@ while (i < 5){
     t2 = ar[i];
     int t3 = 0;
     int nwln = 10;
+    int cntr = 0;
     k = 1;
-    while (k < t2) {
+    while (k < t2 + 1) {
         k = k * 10;
+        cntr = cntr + 1;
     }
-    while (0 < t2){
+    while (0 < cntr){
         k = k /10;
-        t3 = t2/k + 48;
+        t3 = t2/k + cnst;
         print(t3);
-        t3 = t3 - 48;
+        t3 = t3 - cnst;
         t3 = t3*k;
         t2 = t2 - t3;
+        cntr = cntr - 1;
     }
     print(nwln);
     i = i + 1;

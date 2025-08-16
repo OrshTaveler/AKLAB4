@@ -84,8 +84,8 @@
 ### Описание команд:
 -    `JMPE r1 r2: if r1 == r2 -> PC += 1`
 -    `JMP  addr: PC = addr  `
--  `  JMPL r1 r2: if r1 < r2 -> PC += 1`
--   ` AND  r1 r2: r1 = r1 & r2`
+-    `JMPL r1 r2: if r1 < r2 -> PC += 1`
+-    `AND  r1 r2: r1 = r1 & r2`
 -    `NOT  r1:    r1 = ~r1`
 -    `MUL  r1 r2: r1 = r1 * r2` 
 -    `OR   r1 r2: r1 = r1 | r2`
