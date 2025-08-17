@@ -37,6 +37,7 @@ jobs:
     steps:
       - name: run_tests
         run: |
+          cd ..
           pwd
           ls -la
           python3 test.py
