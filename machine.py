@@ -43,7 +43,6 @@ def reset_global():
     global CLCK
     global memory
     global data_ofset
-    global registers
     global signals
 
     ALUL = 0
@@ -60,7 +59,7 @@ def reset_global():
 
     for reg in registers:
         registers[reg] = 0x0
-        
+
     signals = {
     "regs_latchs": [],
     "s_alur": 0,
