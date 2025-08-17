@@ -1,5 +1,5 @@
 import sys
-from isa import machine_to_opcode, Registers, Opcode
+from isa import machine_to_opcode,Registers,Opcode
 from translator import get_code
 
 
@@ -30,6 +30,53 @@ BUFFER = 0
 STOP = 0
 INPUT = []
 IRQ = 0
+
+def reset_global():
+    global ALUL 
+    global ALUR 
+    global N 
+    global Z  
+    global BUFFER  
+    global STOP  
+    global INPUT  
+    global IRQ  
+    global CLCK
+    global memory
+    global data_ofset
+    global registers
+    global signals
+
+    ALUL = 0
+    ALUR = 0
+    N = 0
+    Z = 1
+    BUFFER = 0
+    STOP = 0
+    INPUT = []
+    IRQ = 0
+    CLCK = 0
+    memory = []
+    data_ofset = 0
+
+    for reg in registers:
+        registers[reg] = 0x0
+        
+    signals = {
+    "regs_latchs": [],
+    "s_alur": 0,
+    "s_alul": 0,
+    "alu_op": 0,
+    "alur_latch": 0,
+    "alul_latch": 0,
+    "ar_latch": 0,
+    "s_dst": 0,
+    "res_latch": 0,
+    "write": 0,
+    "read": 0,
+}
+
+
+
 
 # registers values
 registers = {
@@ -274,15 +321,8 @@ def decode_instruction(instruction: int):
 
 def control_unit(irq):
     global CLCK
-    global BUFFER
-    global ALUL
-    global ALUR
-    global STOP
-    global Z
-    global N
-    global INPUT
     global IRQ
-
+    
     instruction = memory[registers[Registers.PC] + data_ofset]
     mach_cicles = decode_instruction(instruction)
     op_name = machine_to_opcode[int(instruction[0], 16)]
@@ -320,11 +360,9 @@ def control_unit(irq):
 
 
 def data_path(signals: dict):
-    global CLCK
     global BUFFER
     global ALUL
     global ALUR
-    global STOP
 
     if signals["s_alur"] == 0xB:
         if signals["alur_latch"] == 1:
@@ -360,12 +398,10 @@ def load_program(code):
     for c in code:
         memory.append(c)
 
-
 def main(code_file, inpt_file):
-    global INPUT
-    global STOP
     global IRQ
     global data_ofset
+    reset_global()
 
     code, labels = get_code(code_file)
     inpt_file_name = inpt_file
@@ -422,7 +458,6 @@ def main(code_file, inpt_file):
         res.write(journal)
     with open("output.txt", "w") as res:
         res.write(output)
-
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])

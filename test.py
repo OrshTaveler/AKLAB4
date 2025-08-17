@@ -16,20 +16,18 @@ if __name__ == "__main__":
     cnt = 0
     for alg in algs:
         inpt = "tests/empty.txt"
-        out = alg.split(".")[0] + "_out.txt"
+        out = alg.split('.')[0] + "_out.txt"
         if alg.split(".")[0] + ".txt" in inpts:
             inpt = "tests/" + alg.split(".")[0] + ".txt"
         main("tests/" + alg, inpt)
         with open("output.txt", "r") as output:
             res = output.read()
-            with open(out, "r") as expected:
+            with open("tests/" +out, "r") as expected:
                 if res == expected.read():
                     print(f"TEST {alg.split('.')[0]} - PASSED")
                     cnt += 1
-                else:
+                else: 
                     print(f"TEST {alg.split('.')[0]} - FAILED")
     with open("test_result.txt", "w") as test_file:
-        if cnt == len(algs):
-            test_file.write("PASSED")
-        else:
-            test_file.write("FAILED")
+        if(cnt == len(algs)): test_file.write("PASSED")
+        else: test_file.write("FAILED!")
