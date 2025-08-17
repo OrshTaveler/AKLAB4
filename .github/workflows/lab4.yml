@@ -38,8 +38,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: run_tests
         run: |
-          pwd
-          ls -la
           python3 test.py
 
       - name: read_test_result
