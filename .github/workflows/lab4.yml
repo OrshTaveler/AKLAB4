@@ -11,9 +11,7 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.10
@@ -31,10 +29,23 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: run_tests
-      run: |
-        python3 test.py
-    - name: check_tests
-      if: contains(file('test_result.txt'), 'FAILED')
-      run: |
-        exit 1
+  test:
+    runs-on: ubuntu-latest
+    outputs:
+      test_status: ${{ steps.check_file.outputs.content }}
+    steps:
+      - name: run_tests
+        run: python3 test.py
+
+      - name: read_test_result
+        id: check_file
+        run: |
+          FILE_CONTENT=$(cat test_result.txt)
+          echo "content=${FILE_CONTENT}" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: test
+    if: contains(needs.test.outputs.test_status, 'FAILED')
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "FAILED!"
