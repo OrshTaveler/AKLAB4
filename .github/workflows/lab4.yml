@@ -36,7 +36,7 @@ jobs:
       test_status: ${{ steps.check_file.outputs.content }}
     steps:
       - name: run_tests
-        run: python3 test.py
+        run: python3 /home/runner/work/AKLAB4/test.py
 
       - name: read_test_result
         id: check_file
