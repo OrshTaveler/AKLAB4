@@ -1,5 +1,5 @@
 import sys
-from isa import machine_to_opcode,Registers,Opcode
+from isa import machine_to_opcode, Registers, Opcode
 from translator import get_code
 
 
@@ -31,15 +31,16 @@ STOP = 0
 INPUT = []
 IRQ = 0
 
+
 def reset_global():
-    global ALUL 
-    global ALUR 
-    global N 
-    global Z  
-    global BUFFER  
-    global STOP  
-    global INPUT  
-    global IRQ  
+    global ALUL
+    global ALUR
+    global N
+    global Z
+    global BUFFER
+    global STOP
+    global INPUT
+    global IRQ
     global CLCK
     global memory
     global data_ofset
@@ -61,20 +62,18 @@ def reset_global():
         registers[reg] = 0x0
 
     signals = {
-    "regs_latchs": [],
-    "s_alur": 0,
-    "s_alul": 0,
-    "alu_op": 0,
-    "alur_latch": 0,
-    "alul_latch": 0,
-    "ar_latch": 0,
-    "s_dst": 0,
-    "res_latch": 0,
-    "write": 0,
-    "read": 0,
-}
-
-
+        "regs_latchs": [],
+        "s_alur": 0,
+        "s_alul": 0,
+        "alu_op": 0,
+        "alur_latch": 0,
+        "alul_latch": 0,
+        "ar_latch": 0,
+        "s_dst": 0,
+        "res_latch": 0,
+        "write": 0,
+        "read": 0,
+    }
 
 
 # registers values
@@ -184,10 +183,9 @@ def alu(alur, alul, code):
 # Operand fetch
 # Memory
 # Write Back
-def decode_instruction(instruction: int):
+def decode_instruction(instruction):
     global STOP
-
-    op = instruction[0]
+    op_name = machine_to_opcode[int(instruction[0], 16)]
     mode = bin(int(instruction[1], 16))[2:]
     while len(mode) < 4:
         mode = "0" + mode
@@ -198,8 +196,8 @@ def decode_instruction(instruction: int):
         "MM": {k: signals[k] for k in signals},
         "WB": {k: signals[k] for k in signals},
     }
-    # Проверяем есть ли загрузка/чтение mode_code[0] == 1
-    if mode_code[0] == 1:
+    # Проверяем есть ли загрузка/чтение
+    if op_name in (Opcode.STORE, Opcode.LOAD, Opcode.LOADIM):
         # Проверка на загрузку imval
         if mode_code[2] + mode_code[3] == 0:
             imval = instruction[2:7]
@@ -270,7 +268,6 @@ def decode_instruction(instruction: int):
 
                 mach_cicles["WB"]["regs_latchs"] = [r1]
     else:
-        op_name = machine_to_opcode[int(op, 16)]
         if op_name == Opcode.JMP:
             imval = instruction[2:8]
             mach_cicles["OF"]["s_alur"] = 0xB  # imval code
@@ -318,10 +315,10 @@ def decode_instruction(instruction: int):
     return mach_cicles
 
 
-def control_unit(irq):
+def control_unit():
     global CLCK
     global IRQ
-    
+
     instruction = memory[registers[Registers.PC] + data_ofset]
     mach_cicles = decode_instruction(instruction)
     op_name = machine_to_opcode[int(instruction[0], 16)]
@@ -341,7 +338,7 @@ def control_unit(irq):
         CLCK += 1
         data_path(mach_cicles[cicle])
 
-    if not irq:
+    if not (IRQ == 1):
         registers[Registers.PC] += 1
         if op_name == Opcode.JMPL and N == 1:
             registers[Registers.PC] += 1
@@ -351,9 +348,8 @@ def control_unit(irq):
             registers[Registers.PC] += 1
 
     else:
-        if IRQ == 1:
-            registers[Registers.INTPC] = registers[Registers.PC]
-            registers[Registers.PC] = registers[Registers.INT]
+        registers[Registers.INTPC] = registers[Registers.PC]
+        registers[Registers.PC] = registers[Registers.INT]
     # print (CLCK,instruction,op_name,memory[1])
     return state
 
@@ -397,6 +393,7 @@ def load_program(code):
     for c in code:
         memory.append(c)
 
+
 def main(code_file, inpt_file):
     global IRQ
     global data_ofset
@@ -419,18 +416,16 @@ def main(code_file, inpt_file):
     journal = ""
     prev_out = memory[1]
     output = ""
-    irq = False
     while STOP == 0:
         time_cnt += 1
         inpt = None
         for i in INPUT:
             if i[0] == time_cnt:
-                irq = True
                 IRQ = 1
                 inpt = i[1]
                 memory[0] = ord(i[1])
 
-        control_unit(irq)
+        control_unit()
         if inpt:
             journal += f'INPUT: "{inpt}"\n'
         if memory[1] != -1:
@@ -439,7 +434,7 @@ def main(code_file, inpt_file):
                 output += chr(int(prev_out))
                 journal += f'OUTPUT: "{chr(prev_out)}"\n'
             memory[1] = -1
-        irq = False
+        IRQ = 0
         inpt = None
 
     for i in range(8):
@@ -457,6 +452,7 @@ def main(code_file, inpt_file):
         res.write(journal)
     with open("output.txt", "w") as res:
         res.write(output)
+
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])

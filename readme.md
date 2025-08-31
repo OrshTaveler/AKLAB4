@@ -98,7 +98,7 @@
 -    `STORE r1 r2: MEM(r2) = r1`
 -    `STORE r1 addr: MEM(addr) = r1`
 -    `LOADIM r1 val: r1 = val`
--    `HALT `
+-    `HALT`
 
 # Транслятор
 ### Запуск: 
